@@ -41,8 +41,8 @@ public class MedicalServiceTest {
         Mockito.when(patientInfoRepository.getById("1")).thenReturn(patientInfo);
         SendAlertService alertService = Mockito.mock(SendAlertService.class);
         MedicalService medicalService = new MedicalServiceImpl(patientInfoRepository, alertService);
-        medicalService.checkTemperature("1",new BigDecimal("36.6"));
-        Mockito.verify(alertService,Mockito.times(0)).
+        medicalService.checkTemperature("1",new BigDecimal("33.6"));
+        Mockito.verify(alertService,Mockito.times(1)).
                 send(String.format("Warning, patient with id: %s, need help",patientInfo.getId()));
 
     }
@@ -52,9 +52,21 @@ public class MedicalServiceTest {
         Mockito.when(patientInfoRepository.getById("1")).thenReturn(patientInfo);
         SendAlertService alertService = Mockito.mock(SendAlertService.class);
         MedicalService medicalService = new MedicalServiceImpl(patientInfoRepository, alertService);
-        medicalService.checkTemperature("1",new BigDecimal(-5));
+        medicalService.checkTemperature("1",new BigDecimal("34.1"));
         ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(alertService).send(argumentCaptor.capture());
         Assertions.assertEquals("Warning, patient with id: 1, need help",argumentCaptor.getValue());
+    }
+    // Метод checkTemperature() написан не корректно , не вызыает alert при повышенной температуре, надо корректировать
+    @Test
+    public void checkTemperatureTest2() {
+        PatientInfoRepository patientInfoRepository = Mockito.mock(PatientInfoRepository.class);
+        Mockito.when(patientInfoRepository.getById("1")).thenReturn(patientInfo);
+        SendAlertService alertService = Mockito.mock(SendAlertService.class);
+        MedicalService medicalService = new MedicalServiceImpl(patientInfoRepository, alertService);
+        medicalService.checkTemperature("1",new BigDecimal("42"));
+        Mockito.verify(alertService,Mockito.times(0)).
+                send(String.format("Warning, patient with id: %s, need help",patientInfo.getId()));
+
     }
 }
